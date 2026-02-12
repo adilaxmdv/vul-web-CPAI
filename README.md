@@ -90,7 +90,7 @@ ctf-web/
 │   │   ├── index.php
 │   │   └── adminLogin.php         # Always fails
 │   ├── staff/                     # Port 5000 - Real admin
-│   │   ├── adminLogin.php         # SQLi vulnerable
+│   │   ├── adminLogin.php   
 │   │   ├── dashboard.php
 │   │   ├── upload.php             # Upload bypass
 │   │   ├── tickets.php
