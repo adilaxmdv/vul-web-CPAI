@@ -4,7 +4,7 @@
 -- Admin user (found in Git repo as 'OpsDesk2024!Admin')
 -- Hash generated: password_hash('OpsDesk2024!Admin', PASSWORD_BCRYPT)
 INSERT INTO users (username, password_hash, role, active) VALUES 
-('admin', '$2y$10$8pPWimP2J.VQ0Y5yE.1DUOHZXt/OA4p7C0m0WbXgQWZ5ZrZQ0zyi', 'admin', 1);
+('admin', '$2b$12$QDtNRKw4swC.TIJ201Guq.ppja0zXfFPT7bxubzGVyclWbPBKq1EW', 'admin', 1);
 
 -- Other staff users (decoys/not needed for main chain)
 INSERT INTO users (username, password_hash, role, active) VALUES 
