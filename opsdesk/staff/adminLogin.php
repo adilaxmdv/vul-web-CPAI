@@ -1,6 +1,6 @@
 <?php
 /**
- * OpsDesk Staff - Real Admin Login
+ * OpsDesk Staff - Real Admin Login (SQLi Fixed)
  */
 require_once '/var/www/opsdesk/includes/db.php';
 session_start();
@@ -10,22 +10,49 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
-    
-    // VULNERABLE: SQL Injection possible here
-    $db = getDB();
-    $query = "SELECT * FROM users WHERE username = '$username' AND password_hash = '$password' AND active = 1";
-    $result = $db->query($query);
-    $user = $result->fetch();
-    
-    if ($user) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['role'] = $user['role'];
-        header('Location: /dashboard.php');
-        exit;
-    } else {
+
+    // Input validation (defense in depth)
+    if (empty($username) || empty($password)) {
         sleep(1);
         $error = 'Invalid credentials.';
+    } else {
+        try {
+            $db = getDB();
+            
+            // SECURE: Parameterized query - user input never touches the SQL directly
+            $stmt = $db->prepare("
+                SELECT id, username, password_hash, role, active 
+                FROM users 
+                WHERE username = :username AND active = 1
+                LIMIT 1
+            ");
+            
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // SECURE: Proper password hash verification (assuming passwords stored with password_hash())
+            if ($user && password_verify($password, $user['password_hash'])) {
+                // Prevent session fixation
+                session_regenerate_id(true);
+                
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $user['role'];
+                
+                header('Location: /dashboard.php');
+                exit;
+            } else {
+                sleep(1);
+                $error = 'Invalid credentials.'; // Generic message prevents user enumeration
+            }
+            
+        } catch (PDOException $e) {
+            // Log internally, don't leak SQL errors to users
+            error_log("Authentication error: " . $e->getMessage());
+            $error = 'System error. Please try again later.';
+        }
     }
 }
 ?>
