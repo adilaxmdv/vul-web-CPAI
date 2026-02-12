@@ -1,0 +1,30 @@
+[Unit]
+Description=OpsDesk CTF Web Application
+After=network.target apache2.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+ExecStartPre=/bin/sleep 2
+ExecStart=/bin/bash -c '
+    # Ensure proper permissions
+    chown -R www-data:www-data /var/www/opsdesk;
+    chmod 775 /var/www/opsdesk/uploads;
+    chmod 775 /var/www/opsdesk/db;
+    chmod 664 /var/www/opsdesk/db/opsdesk.db;
+    
+    # Ensure database exists
+    if [ ! -f /var/www/opsdesk/db/opsdesk.db ]; then
+        cd /var/www/opsdesk/db && sqlite3 opsdesk.db < schema.sql && sqlite3 opsdesk.db < seed.sql;
+        chown www-data:www-data /var/www/opsdesk/db/opsdesk.db;
+        chmod 664 /var/www/opsdesk/db/opsdesk.db;
+    fi;
+    
+    # Restart Apache to ensure clean state
+    systemctl restart apache2;
+    echo "OpsDesk initialized"
+'
+
+[Install]
+WantedBy=multi-user.target
