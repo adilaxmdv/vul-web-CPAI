@@ -78,6 +78,15 @@ echo "[*] Restarting Apache..."
 systemctl restart apache2
 systemctl enable apache2
 
+# Configure sudoers for privilege escalation vulnerability
+echo "[*] Configuring sudoers for opsuser..."
+if ! grep -q "opsuser.*find" /etc/sudoers 2>/dev/null; then
+    echo "opsuser ALL=(ALL) NOPASSWD: /usr/bin/find" >> /etc/sudoers
+    echo "[+] Added sudoers entry for find command (privesc vector)"
+else
+    echo "[!] Sudoers entry already exists"
+fi
+
 # Create flags
 echo "[*] Creating flags..."
 echo "CTF{u5er_fl4g_f0r_0psd3sk}" > /home/opsuser/user.txt
