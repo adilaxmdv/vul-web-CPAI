@@ -1,8 +1,8 @@
 #!/bin/bash
 # Push OpsDesk CTF to GitHub (main branch)
-# Usage: ./push-to-github.sh
+# Repository: https://github.com/adilaxmdv/vul-web-CPA
 
-REPO_URL="https://github.com/adilaxmdv/vuln-web-CPAI.git"
+REPO_URL="https://github.com/adilaxmdv/vul-web-CPA.git"
 
 # Colors
 RED='\033[0;31m'
@@ -11,6 +11,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo -e "${YELLOW}[*] OpsDesk CTF - GitHub Push Script${NC}"
+echo -e "${YELLOW}[*] Target: github.com/adilaxmdv/vul-web-CPA${NC}"
 echo ""
 
 # Check directory
@@ -19,7 +20,7 @@ if [ ! -f "setup.sh" ] && [ ! -d "opsdesk" ]; then
     exit 1
 fi
 
-# Get token
+# Get token securely
 echo -n "Enter GitHub Personal Access Token: "
 read -s TOKEN
 echo ""
@@ -43,44 +44,53 @@ git config --global user.name "OpsDesk CTF" 2>/dev/null || true
 if [ ! -d ".git" ]; then
     echo -e "${YELLOW}[*] Initializing git repository...${NC}"
     git init
-    git branch -M main  # Force main branch name
 fi
 
-# Ensure we're on main branch
+# Ensure main branch
 echo -e "${YELLOW}[*] Setting up main branch...${NC}"
 git checkout -b main 2>/dev/null || git checkout main 2>/dev/null || git branch -M main
 
-# Add remote
-echo -e "${YELLOW}[*] Adding remote...${NC}"
+# Add remote (remove old if exists)
+echo -e "${YELLOW}[*] Configuring remote...${NC}"
 git remote remove origin 2>/dev/null || true
-git remote add origin "https://${TOKEN}@github.com/adilaxmdv/vuln-web-CPAI.git"
+git remote add origin "https://${TOKEN}@github.com/adilaxmdv/vul-web-CPA.git"
 
-# Add and commit
-echo -e "${YELLOW}[*] Adding files...${NC}"
+# Add files
+echo -e "${YELLOW}[*] Adding files to git...${NC}"
 git add .
+
+# Show status
+echo -e "${YELLOW}[*] Files to be committed:${NC}"
+git status --short
 
 echo ""
 read -p "Enter commit message [Initial commit - OpsDesk CTF]: " MSG
 MSG=${MSG:-"Initial commit - OpsDesk CTF"}
 
-echo -e "${YELLOW}[*] Committing...${NC}"
-git commit -m "$MSG" || echo -e "${YELLOW}[!] Nothing new to commit${NC}"
+echo -e "${YELLOW}[*] Creating commit...${NC}"
+git commit -m "$MSG" || echo -e "${YELLOW}[!] Nothing new to commit or already committed${NC}"
 
-# Force push to main
-echo -e "${YELLOW}[*] Pushing to main branch...${NC}"
+# Push to main
+echo -e "${YELLOW}[*] Pushing to main branch on GitHub...${NC}"
 if git push -u origin main; then
     echo -e "${GREEN}[+] Successfully pushed to main branch!${NC}"
 else
-    echo -e "${YELLOW}[!] Push failed, trying force push...${NC}"
-    read -p "Force push to main? (y/N): " CONFIRM
+    echo -e "${YELLOW}[!] Regular push failed, trying force push...${NC}"
+    read -p "Force push to main? This overwrites remote! (y/N): " CONFIRM
     if [ "$CONFIRM" = "y" ] || [ "$CONFIRM" = "Y" ]; then
-        git push -u origin main --force
-        echo -e "${GREEN}[+] Force pushed to main!${NC}"
+        if git push -u origin main --force; then
+            echo -e "${GREEN}[+] Force pushed successfully!${NC}"
+        else
+            echo -e "${RED}[-] Push failed completely${NC}"
+        fi
+    else
+        echo -e "${YELLOW}[!] Push cancelled by user${NC}"
     fi
 fi
 
-# Clean up token
+# Remove token from remote for security
 git remote set-url origin "$REPO_URL"
 
 echo ""
-echo -e "${GREEN}[+] Done! Check: ${REPO_URL}${NC}"
+echo -e "${GREEN}[+] Done! Repository: ${REPO_URL}${NC}"
+echo -e "${GREEN}[+] Token removed from remote URL for security${NC}"
