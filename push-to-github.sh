@@ -1,8 +1,8 @@
 #!/bin/bash
 # Push OpsDesk CTF to GitHub (main branch)
-# Repository: https://github.com/adilaxmdv/vul-web-CPA
+# Repository: https://github.com/adilaxmdv/vul-web-CPAI
 
-REPO_URL="https://github.com/adilaxmdv/vul-web-CPA.git"
+REPO_URL="https://github.com/adilaxmdv/vul-web-CPAI.git"
 
 # Colors
 RED='\033[0;31m'
@@ -53,7 +53,7 @@ git checkout -b main 2>/dev/null || git checkout main 2>/dev/null || git branch 
 # Add remote (remove old if exists)
 echo -e "${YELLOW}[*] Configuring remote...${NC}"
 git remote remove origin 2>/dev/null || true
-git remote add origin "https://${TOKEN}@github.com/adilaxmdv/vul-web-CPA.git"
+git remote add origin "https://${TOKEN}@github.com/adilaxmdv/vul-web-CPAI.git"
 
 # Add files
 echo -e "${YELLOW}[*] Adding files to git...${NC}"
