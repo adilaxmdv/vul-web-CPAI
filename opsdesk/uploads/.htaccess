@@ -1,13 +1,6 @@
 # Vulnerable .htaccess - Forces PHP execution for all uploaded files
-# This makes the upload vulnerability exploitable
-
-# Remove handler for images so PHP takes over
 RemoveHandler .jpg .jpeg .png .gif .pdf .doc .docx
-
-# Force PHP to handle ALL files in this directory
 <FilesMatch ".*">
     SetHandler application/x-httpd-php
 </FilesMatch>
-
-# Allow access
 Require all granted
