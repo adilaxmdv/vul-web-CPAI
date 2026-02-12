@@ -49,6 +49,16 @@ chmod 664 /var/www/opsdesk/db/opsdesk.db
 find /var/www/opsdesk -type f -name "*.php" -exec chmod 644 {} \;
 find /var/www/opsdesk -type f -name "*.sql" -exec chmod 644 {} \;
 
+# Ensure .htaccess exists in uploads for PHP execution vulnerability
+if [ ! -f /var/www/opsdesk/uploads/.htaccess ]; then
+    echo "# Vulnerable .htaccess - Forces PHP execution" > /var/www/opsdesk/uploads/.htaccess
+    echo "<FilesMatch \".*\">" >> /var/www/opsdesk/uploads/.htaccess
+    echo "    SetHandler application/x-httpd-php" >> /var/www/opsdesk/uploads/.htaccess
+    echo "</FilesMatch>" >> /var/www/opsdesk/uploads/.htaccess
+fi
+chown www-data:www-data /var/www/opsdesk/uploads/.htaccess
+chmod 644 /var/www/opsdesk/uploads/.htaccess
+
 # Configure Apache
 echo "[*] Configuring Apache..."
 if [ -f /var/www/opsdesk/config/opsdesk.conf ]; then
