@@ -37,7 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
                 $stmt = $db->prepare("INSERT INTO attachments (original_filename, stored_path, uploaded_by, uploaded_at) VALUES (?, ?, ?, datetime('now'))");
                 $stmt->execute([$filename, $uploadPath, $_SESSION['user_id']]);
                 
-                $message = 'File uploaded successfully: ' . htmlspecialchars($filename);
+                $webPath = '/uploads/' . $filename;
+                $fullUrl = 'http://' . $_SERVER['HTTP_HOST'] . $webPath;
+                $message = 'File uploaded successfully: ' . htmlspecialchars($filename) . 
+                          '<br><strong>Access URL:</strong> <a href="' . $webPath . '">' . htmlspecialchars($fullUrl) . '</a>';
             } else {
                 $error = 'Failed to move uploaded file.';
             }
